@@ -27,6 +27,7 @@ from random import randint
 import sys
 import argparse
 from re import match, sub
+import json
 import boto3
 from botocore.exceptions import ClientError
 
@@ -147,6 +148,10 @@ def get_provisioned_product_status(prov_prod_name):
         else:
             # Populate pp_list again if prov_prod_name wasn't found
             print(f"Retrying provisioned product list...retry#{retries+1}")
+            with open(prov_prod_name + "retry_" + str(retries + 1) + ".json", "w") as dumpfile:
+                # Using file.write() iso json.dump() to ensure quotes are properly written to file
+                # when using default=str which we need for datetime dict fields
+                dumpfile.write(json.dumps(pp_list, indent=4, sort_keys=True, default=str))
             sleep(5)
             pp_list = search_provisioned_product_full_list()
 
